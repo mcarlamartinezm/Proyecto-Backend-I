@@ -1,0 +1,15 @@
+# Ignorar dependencias
+node_modules/
+
+# Ignorar variables de entorno
+.env
+
+# Ignorar logs
+*.log
+
+# Ignorar archivos temporales del sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar carpeta de cobertura de tests (si usas Jest)
+coverage/

@@ -1,0 +1,112 @@
+[
+  {
+    "id": 2,
+    "title": "Pantalón cargo mujer",
+    "description": "Pantalón de gabardina con múltiples bolsillos y corte moderno.",
+    "price": 23990,
+    "thumbnail": "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
+    "code": "PAN-002",
+    "stock": 15,
+    "status": true,
+    "category": "ropa-mujer"
+  },
+  {
+    "id": 3,
+    "title": "Chaqueta de mezclilla hombre",
+    "description": "Clásica chaqueta de mezclilla azul con botones metálicos.",
+    "price": 34990,
+    "thumbnail": "https://fakestoreapi.com/img/71YXzeOuslL._AC_UY879_.jpg",
+    "code": "CHA-003",
+    "stock": 10,
+    "status": true,
+    "category": "ropa-hombre"
+  },
+  {
+    "id": 4,
+    "title": "Hoodie básico unisex",
+    "description": "Sudadera con capucha interior afelpada.",
+    "price": 19990,
+    "thumbnail": "https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_.jpg",
+    "code": "HOO-004",
+    "stock": 0,
+    "status": false,
+    "category": "ropa-unisex"
+  },
+  {
+    "id": 5,
+    "title": "Falda plisada mujer",
+    "description": "Falda midi plisada con cintura elástica.",
+    "price": 17990,
+    "thumbnail": "https://fakestoreapi.com/img/71YXzeOuslL._AC_UY879_.jpg",
+    "code": "FAL-005",
+    "stock": 12,
+    "status": true,
+    "category": "ropa-mujer"
+  },
+  {
+    "id": 6,
+    "title": "Camisa lino hombre",
+    "description": "Camisa de lino natural con botones frontales.",
+    "price": 25990,
+    "thumbnail": "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
+    "code": "CAM-006",
+    "stock": 8,
+    "status": true,
+    "category": "ropa-hombre"
+  },
+  {
+    "id": 7,
+    "title": "Chaqueta impermeable unisex",
+    "description": "Chaqueta liviana y resistente al agua, ideal para días lluviosos.",
+    "price": 29990,
+    "thumbnail": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+    "code": "IMP-007",
+    "stock": 6,
+    "status": true,
+    "category": "ropa-unisex"
+  },
+  {
+    "id": 8,
+    "title": "Jeans skinny mujer",
+    "description": "Jeans tiro alto con corte ajustado y elasticidad media.",
+    "price": 21990,
+    "thumbnail": "https://fakestoreapi.com/img/71YXzeOuslL._AC_UY879_.jpg",
+    "code": "JEA-008",
+    "stock": 0,
+    "status": false,
+    "category": "ropa-mujer"
+  },
+  {
+    "id": 9,
+    "title": "Parka térmica hombre",
+    "description": "Parka acolchada con cierre frontal y bolsillos laterales.",
+    "price": 45990,
+    "thumbnail": "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
+    "code": "PAR-009",
+    "stock": 5,
+    "status": true,
+    "category": "ropa-hombre"
+  },
+  {
+    "id": 10,
+    "title": "Short deportivo unisex",
+    "description": "Short de secado rápido ideal para entrenamientos o uso diario.",
+    "price": 15990,
+    "thumbnail": "https://fakestoreapi.com/img/81Zt42ioCgL._AC_SX679_.jpg",
+    "code": "SHO-010",
+    "stock": 18,
+    "status": true,
+    "category": "ropa-unisex"
+  },
+  {
+    "id": 1,
+    "title": "Polera oversize unisex",
+    "description": "Polera de algodón orgánico con corte relajado.",
+    "price": 12990,
+    "thumbnail": "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+    "code": "POL-001",
+    "stock": 25,
+    "status": true,
+    "category": "ropa-unisex"
+  }
+]
