@@ -1,0 +1,188 @@
+/* ====== Base oscuro y tipografía ====== */
+:root{
+  --bg:#0f1115;
+  --panel:#161a22;
+  --panel-2:#1b2130;
+  --text:#e7eaf0;
+  --muted:#aab2c0;
+  --accent:#4f80ff;
+  --border:#2a3142;
+  --danger:#ff5c5c;
+  --ok:#2ecc71;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;
+  line-height:1.45;
+  display:flex;
+  justify-content:center; /* centrar el body */
+}
+.container{
+  width:100%;
+  max-width:800px; /* pedido: 600–800 */
+  padding:24px 16px 56px;
+}
+
+/* ===================== NAVBAR OSCURO UNIFICADO ===================== */
+/* Usa los mismos colores definidos en tu :root */
+nav, .navbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: var(--panel);          /* igual que las cards */
+  border: 1px solid var(--border);   /* mismo borde general */
+  border-radius: 14px;
+  width: fit-content;
+  margin-bottom: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35); /* mismo estilo de sombras */
+  margin-top: 80px;
+  
+}
+
+/* Botones / links dentro del navbar */
+nav a, .navbar a {
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 9999px;
+  background: var(--panel-2);        /* igual que tus botones */
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 600;
+  transition: filter .2s ease, transform .1s ease, background .2s ease;
+}
+
+nav a:hover, .navbar a:hover {
+  background: #222a3a;               /* tono hover usado en tus botones */
+  filter: brightness(1.12);
+}
+
+nav a:active, .navbar a:active {
+  transform: translateY(1px);
+}
+
+/* Link activo o elemento que representa “vista actual” */
+nav a.active, .navbar a.active {
+  background: var(--accent);         /* azul acento */
+  border-color: var(--accent);
+  color: white;
+}
+
+
+/* ====== Titulares y texto ====== */
+h1,h2{margin:0 0 12px}
+h1{font-size:22px}
+h2{font-size:18px}
+p,li,label,input,button,select{font-size:14px}
+
+/* ====== Botones ====== */
+.btn{
+  display:inline-block;
+  padding:10px 14px;
+  border-radius:999px;           /* redondeados */
+  border:1px solid var(--border);
+  background:var(--panel-2);
+  color:var(--text);
+  cursor:pointer;
+  transition:transform .05s ease, background .2s ease, border .2s ease;
+}
+.btn:hover{background:#222a3a}
+.btn:active{transform:translateY(1px)}
+.btn.danger{border-color:#5a2d2d;background:#2a1414;color:#ffc8c8}
+.btn.ok{border-color:#285a40;background:#132a1f;color:#c8ffde}
+
+/* ====== Cards de productos ====== */
+.products-grid{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr)); /* pedido: 4 por fila */
+  gap:14px;
+  list-style:none;
+  padding:0;
+  margin:12px 0 0;
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;            /* bordes redondos */
+  overflow:hidden;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
+  display:flex;
+  flex-direction:column;
+  min-height:100%;
+}
+.card-id{
+  font-weight:600;
+  font-size:12px;
+  color:var(--muted);
+  padding:10px 12px;
+  border-bottom:1px solid var(--border);
+}
+.card-media{
+  width:100%;
+  aspect-ratio: 1 / 1;          /* cuadrada */
+  background:#0b0d12;
+  display:flex; align-items:center; justify-content:center;
+}
+.card-media img{
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+.card-body{
+  padding:10px 12px 12px;
+}
+.card-body .title{font-weight:600; margin-bottom:4px}
+.card-body .price{color:var(--ok); font-weight:700; margin:6px 0}
+.card-body .meta{color:var(--muted); font-size:12px}
+
+/* ====== Layout RealTime: cards izquierda, formularios derecha (sticky) ====== */
+.rt-layout{
+  display:grid;
+  grid-template-columns: 1fr 340px;  /* cards | formularios */
+  gap:16px;
+  align-items:start;
+}
+.rt-products .products-grid{
+  grid-template-columns: repeat(2, minmax(0,1fr)); /* pedido: 2 por fila en realtime */
+}
+.rt-sidebar{
+  position:sticky;
+  top:16px;            /* formularios estáticos */
+  align-self:start;
+}
+.form-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:14px;
+}
+.form-card form > div{display:flex; flex-direction:column; gap:6px; margin-bottom:8px}
+input,select{
+  background:#0d1016; color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px; padding:10px 12px; outline:none;
+}
+hr{border:0; height:1px; background:var(--border); margin:16px 0}
+
+/* ====== Carts ====== */
+.carts-wrap{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+#cart-list{list-style:none; padding:0; margin-top:10px}
+#cart-list li{
+  border:1px dashed var(--border);
+  padding:8px 10px; border-radius:10px; margin-bottom:8px;
+}
+
+/* ====== Utilidades ====== */
+.muted{color:var(--muted)}
+.center{text-align:center}
+.hidden{display:none}
+

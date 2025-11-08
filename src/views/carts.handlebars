@@ -1,0 +1,16 @@
+<h1>Carritos</h1>
+
+<div class="carts-wrap">
+  <form id="cart-form">
+    <label for="cartId">ID de carrito</label>
+    <input id="cartId" name="cartId" type="number" min="1" required />
+    <button class="btn" type="submit">Ver carrito</button>
+  </form>
+
+  <h2>Productos del carrito</h2>
+  <ul id="cart-list">
+    <li id="empty" class="muted">Ingresa un ID y presiona “Ver carrito”.</li>
+  </ul>
+</div>
+
+<script src="/public/js/carts.js"></script>

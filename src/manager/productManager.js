@@ -6,21 +6,32 @@ export default class ProductManager {
     this.path = path;
   }
 
-// ================= Leer archivo
+  // ================= Leer archivo
   async getProducts() {
     if (!fs.existsSync(this.path)) return [];
     const data = await fs.promises.readFile(this.path, 'utf-8');
     return JSON.parse(data);
   }
 
-// ================ Agregar producto con ID autogenerado
+  // ================ Agregar producto con ID autogenerado
   async addProduct(product) {
     const products = await this.getProducts();
 
-//=============== Generar ID basado en el último elemento
+    //=============== Generar ID basado en el último elemento
     const newId = products.length > 0 ? products[products.length - 1].id + 1 : 1;
 
-    const newProduct = { id: newId, ...product };
+    //=============== Producto con TODOS los campos controlados
+    const newProduct = {
+      id: newId,
+      title: product.title,
+      description: product.description,
+      price: product.price,
+      thumbnail: product.thumbnail,
+      code: product.code,
+      stock: product.stock,
+      category: product.category,
+      status: product.status ?? true  // default si no viene
+    };
 
     products.push(newProduct);
 
@@ -29,13 +40,13 @@ export default class ProductManager {
     return newProduct;
   }
 
-// ================ Obtener producto por ID
+  // ================ Obtener producto por ID
   async getProductById(id) {
     const products = await this.getProducts();
     return products.find(p => p.id === id);
   }
 
-// ================ Actualizar producto por ID
+  // ================ Actualizar producto por ID
   async updateProduct(id, updatedFields) {
     const products = await this.getProducts();
     const index = products.findIndex(p => p.id === id);
@@ -46,7 +57,7 @@ export default class ProductManager {
     return products[index];
   }
 
-// ================ Eliminar producto por ID
+  // ================ Eliminar producto por ID
   async deleteProduct(id) {
     const products = await this.getProducts();
     const index = products.findIndex(p => p.id === id);

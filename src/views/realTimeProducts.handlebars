@@ -1,0 +1,82 @@
+<h1>Productos en tiempo real</h1>
+
+<div class="rt-layout">
+  <section class="rt-products">
+    <ul id="rt-list" class="products-grid">
+      {{#if products.length}}
+        {{#each products}}
+          <li class="card" data-id="{{this.id}}">
+            <div class="card-id">ID: {{this.id}}</div>
+            <div class="card-media">
+              {{#if this.thumbnail}}
+                <img src="{{this.thumbnail}}" alt="{{this.title}}">
+              {{else}}
+                <img src="https://via.placeholder.com/400x400?text=Sin+imagen" alt="Sin imagen">
+              {{/if}}
+            </div>
+            <div class="card-body">
+              <div class="title">{{this.title}}</div>
+              <div class="price">$ {{this.price}}</div>
+              <div class="meta">
+                {{this.category}} · stock: {{this.stock}} · code: {{this.code}} · status: {{this.status}}
+              </div>
+              <p class="muted">{{this.description}}</p>
+            </div>
+          </li>
+        {{/each}}
+      {{else}}
+        <li id="empty" class="muted">No hay productos cargados</li>
+      {{/if}}
+    </ul>
+  </section>
+
+  <aside class="rt-sidebar">
+    <div class="form-card">
+      <h2>Agregar producto</h2>
+      
+      <form id="add-form">
+        <div><label>Título</label><input name="title" required /></div>
+        <div><label>Descripción</label><input name="description" required /></div>
+        <div><label>Precio</label><input name="price" type="number" min="0" step="0.01" required /></div>
+        <div><label>Categoría</label><input name="category" required /></div>
+        <div><label>Stock</label><input name="stock" type="number" min="0" required /></div>
+        <div><label>Thumbnail (URL)</label><input name="thumbnail" /></div>
+        <div><label>Code</label><input name="code" /></div>
+        <div>
+          <label>Status</label>
+          <select name="status">
+            <option value="true" selected>true</option>
+            <option value="false">false</option>
+          </select>
+        </div>
+        <button class="btn ok" type="submit">Agregar</button>
+      </form>
+    </div>
+
+    <div class="form-card">
+      <h2>Editar precio</h2>
+      
+      <form id="edit-price-form">
+        <div><label>ID</label><input name="id" type="number" min="1" required /></div>
+        <div><label>Nuevo precio</label><input name="price" type="number" min="0" step="0.01" required /></div>
+        <button class="btn" type="submit">Actualizar</button>
+      </form>
+      
+    </div>
+
+    <div class="form-card">
+      <h2>Eliminar producto</h2>
+      
+      <form id="del-form">
+        <div><label>ID</label><input name="id" type="number" min="1" required /></div>
+        <button class="btn danger" type="submit">Eliminar</button>
+      </form>
+      
+    </div>
+
+    
+  </aside>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/public/js/realtime.js"></script>

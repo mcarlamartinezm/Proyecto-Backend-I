@@ -31,16 +31,16 @@ export default class CartManager {
   }
 
 //================ Agregar producto al carrito
-  async addProductToCart(cid, pid) {
+  async addProductToCart(cid, pid, quantity = 1) {
     const carts = await this.getCarts();
     const cart = carts.find(c => c.id === cid);
     if (!cart) return null;
 
     const existing = cart.products.find(p => p.product === pid);
     if (existing) {
-      existing.quantity++;
+      existing.quantity += quantity;
     } else {
-      cart.products.push({ product: pid, quantity: 1 });
+      cart.products.push({ product: pid, quantity });
     }
 
     await fs.promises.writeFile(this.path, JSON.stringify(carts, null, 2));

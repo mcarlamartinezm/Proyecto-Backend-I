@@ -1,0 +1,29 @@
+<h1>Productos</h1>
+
+<ul class="products-grid">
+  {{#if products.length}}
+    {{#each products}}
+      <li class="card" data-id="{{this.id}}">
+        <div class="card-id">ID: {{this.id}}</div>
+        <div class="card-media">
+          {{#if this.thumbnail}}
+            <img src="{{this.thumbnail}}" alt="{{this.title}}">
+          {{else}}
+            <img src="https://via.placeholder.com/400x400?text=Sin+imagen" alt="Sin imagen">
+          {{/if}}
+        </div>
+        <div class="card-body">
+          <div class="title">{{this.title}}</div>
+          <div class="price">$ {{this.price}}</div>
+          <div class="meta">
+            {{this.category}} · stock: {{this.stock}} · code: {{this.code}}
+          </div>
+          <p class="muted">{{this.description}}</p>
+        </div>
+      </li>
+    {{/each}}
+  {{else}}
+    <li class="muted">No hay productos aún</li>
+  {{/if}}
+</ul>
+
