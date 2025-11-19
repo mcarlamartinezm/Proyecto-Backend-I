@@ -1,10 +1,9 @@
 import express from 'express';
-import productsDaoMongo from '../manager/dao/productsDaoMongo';
+import productsDaoMongo from '../dao/productsDaoMongo';
+
 
 //=========== Variables
 const router = express.Router();
-const pm = new ProductManager('./data/products.json');
-
 
 // ========= GET obtener todos los productos
   router.get('/', async (req, res) => {
