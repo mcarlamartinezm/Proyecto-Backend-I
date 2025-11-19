@@ -13,3 +13,6 @@ Thumbs.db
 
 # Ignorar carpeta de cobertura de tests (si usas Jest)
 coverage/
+
+#Ignorar claves de mongo db
+.env

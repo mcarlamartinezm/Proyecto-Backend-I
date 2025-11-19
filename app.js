@@ -9,12 +9,16 @@ import { engine } from 'express-handlebars';
 //socket.io importaciones
 import http from "http";
 import { Server } from "socket.io";
+//mongoDB importaciones
+import connectMongoDB from './src/config/mongo.js';
+import 'dotenv/config';
 
 
 //=============Variables
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT ?? 8080;
+
 //variables de handlebars
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = path.dirname(_filename);
@@ -49,7 +53,11 @@ app.set("views", path.join(_dirname, "src","views"));
 app.set("io", io);
 
 
+
 //============ Levanta servidor
+connectMongoDB();
+
+//para ver la web mientras edito
 httpServer.listen(PORT, () => { 
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
