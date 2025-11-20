@@ -1,58 +1,59 @@
-import Cart from '../models/Cart.js';
+import Carts from '../models/Carts.js';
+import Products from '../models/Products.js';
 import mongoose from 'mongoose';
 
 class CartsDaoMongo {
   async create() {
-    const cart = await Cart.create({});
-    return cart.toObject();
+    const Carts = await Cart.create({});
+    return Carts.toObject();
   }
 
   async getById(cid, populate = false) {
     if (populate) {
-      return Cart.findById(cid).populate('products.product').lean();
+      return Carts.findById(cid).populate('products.product').lean();
     }
-    return Cart.findById(cid).lean();
+    return Carts.findById(cid).lean();
   }
 
   async addProduct(cid, pid, quantity = 1) {
-    const cart = await Cart.findById(cid);
-    if (!cart) throw new Error('Cart not found');
+    const Carts = await Carts.findById(cid);
+    if (!Carts) throw new Error('Carrito no encontrado');
 
-    const item = cart.products.find(p => p.product.toString() === pid.toString());
+    const item = Carts.Products.find(p => p.Products.toString() === pid.toString());
     if (item) {
       item.quantity = item.quantity + quantity;
     } else {
-      cart.products.push({ product: mongoose.Types.ObjectId(pid), quantity });
+      Carts.Products.push({ Products: mongoose.Types.ObjectId(pid), quantity });
     }
-    await cart.save();
-    return cart.toObject();
+    await Carts.save();
+    return Carts.toObject();
   }
 
   async removeProduct(cid, pid) {
-    const cart = await Cart.findById(cid);
-    if (!cart) throw new Error('Cart not found');
-    cart.products = cart.products.filter(p => p.product.toString() !== pid.toString());
-    await cart.save();
-    return cart.toObject();
+    const Carts = await Carts.findById(cid);
+    if (!Carts) throw new Error('Carrito no encontrado');
+    Carts.Products = Carts.Products.filter(p => p.Products.toString() !== pid.toString());
+    await Carts.save();
+    return Carts.toObject();
   }
 
   async updateProductQuantity(cid, pid, quantity) {
     if (quantity < 1) throw new Error('Quantity must be >= 1');
-    const cart = await Cart.findById(cid);
-    if (!cart) throw new Error('Cart not found');
-    const item = cart.products.find(p => p.product.toString() === pid.toString());
-    if (!item) throw new Error('Product not in cart');
+    const Carts = await Carts.findById(cid);
+    if (!Carts) throw new Error('Carrito no encontrado');
+    const item = Carts.products.find(p => p.Products.toString() === pid.toString());
+    if (!item) throw new Error('Producto no está en el carrito');
     item.quantity = quantity;
-    await cart.save();
-    return cart.toObject();
+    await Carts.save();
+    return Carts.toObject();
   }
 
   async clearCart(cid) {
-    const cart = await Cart.findById(cid);
-    if (!cart) throw new Error('Cart not found');
-    cart.products = [];
-    await cart.save();
-    return cart.toObject();
+    const Carts = await Carts.findById(cid);
+    if (!cart) throw new Error('Carrito no encontrado');
+    Carts.Products = [];
+    await Carts.save();
+    return Carts.toObject();
   }
 }
 

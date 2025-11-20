@@ -1,4 +1,5 @@
-import Product from '../models/Product.js';
+import Product from '../models/Products.js';
+
 
 class ProductsDaoMongo {
   // algunos opcionales
@@ -35,8 +36,8 @@ class ProductsDaoMongo {
     const skip = (page - 1) * limit;
 
     const [docs, totalDocs] = await Promise.all([
-      Product.find(filter).sort(sortObj).skip(skip).limit(limit).lean(),
-      Product.countDocuments(filter)
+      Products.find(filter).sort(sortObj).skip(skip).limit(limit).lean(),
+      Products.countDocuments(filter)
     ]);
 
     const totalPages = Math.max(Math.ceil(totalDocs / limit), 1);
@@ -45,7 +46,7 @@ class ProductsDaoMongo {
     const prevPage = hasPrevPage ? page - 1 : null;
     const nextPage = hasNextPage ? page + 1 : null;
 
-    // prevLink-nextLink
+  
     return {
       status: 'success',
       payload: docs,
@@ -62,20 +63,20 @@ class ProductsDaoMongo {
   }
 
   async getById(id) {
-    return Product.findById(id).lean();
+    return Products.findById(id).lean();
   }
 
   async create(productData) {
-    const p = await Product.create(productData);
+    const p = await Products.create(productData);
     return p.toObject();
   }
 
   async update(id, updateData) {
-    return Product.findByIdAndUpdate(id, updateData, { new: true }).lean();
+    return Products.findByIdAndUpdate(id, updateData, { new: true }).lean();
   }
 
   async delete(id) {
-    return Product.findByIdAndDelete(id).lean();
+    return Products.findByIdAndDelete(id).lean();
   }
 }
 

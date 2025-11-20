@@ -1,5 +1,5 @@
 import express from 'express';
-import productsDaoMongo from '../dao/productsDaoMongo';
+import productsDaoMongo from '../dao/productsDaoMongo.js';
 
 
 //=========== Variables
