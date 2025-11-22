@@ -8,24 +8,67 @@ const router = express.Router();
 // ========= GET obtener todos los productos
   router.get('/', async (req, res) => {
   try {
-    const { limit, page, sort, query } = req.query;
-    const options = { limit, page, sort, query };
+    // parseo y defaults
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const page  = req.query.page  ? parseInt(req.query.page)  : 1;
+    // (para ordenar por price)
+    const sortQuery = req.query.sort;
+    const sort = sortQuery === 'asc' ? 'asc' : sortQuery === 'desc' ? 'desc' : null;
+
+    // query 
+    const rawQuery = req.query.query || null;
+    let filter = {};
+
+    if (req.query.category) {
+      filter.category = req.query.category;
+    } else if (req.query.status) {
+      // permitir que status venga como 'true'/'false' o 'available' etc.
+      filter.status = req.query.status;
+    } else if (rawQuery) {
+      if (rawQuery.includes(':')) {
+        const [k, ...rest] = rawQuery.split(':');
+        const v = rest.join(':');
+        if (k && v) filter[k] = v;
+      } else {
+        // fallback: intentar usarlo como category o status
+        filter.$or = [{ category: rawQuery }, { status: rawQuery }];
+      }
+    }
+
+    const options = { limit, page, sort, filter };
     const result = await productsDao.getAll(options);
 
-    const base = `${req.protocol}://${req.get('host')}${req.path}`;
+    const base = `${req.protocol}://${req.get('host')}${req.baseUrl}${req.path}`;
     const url = new URL(`${req.protocol}://${req.get('host')}${req.originalUrl}`);
-    const search = url.searchParams;
 
     const makeLink = (pageNum) => {
       if (!pageNum) return null;
-      search.set('page', pageNum);
-      return `${base}?${search.toString()}`;
+      // crear copia de search params para no mutar la original
+      const params = new URLSearchParams(url.searchParams.toString());
+      params.set('page', pageNum);
+      return `${base}?${params.toString()}`;
     };
 
-    result.prevLink = result.hasPrevPage ? makeLink(result.prevPage) : null;
-    result.nextLink = result.hasNextPage ? makeLink(result.nextPage) : null;
+    // asegurar que result tiene la forma esperada por la consigna
+    // si el DAO ya devuelve prev/next info, usamos esas propiedades; si no, intentamos derivarlas
+    const response = {
+      status: result.status || 'success',
+      payload: result.payload || result.docs || result.products || result, // tolerancia
+      totalPages: result.totalPages ?? result.totalPagesCalculated ?? (result.total ? Math.ceil(result.total / limit) : undefined),
+      prevPage: result.prevPage ?? (result.page && result.page > 1 ? result.page - 1 : null),
+      nextPage: result.nextPage ?? (result.page && result.totalPages && result.page < result.totalPages ? result.page + 1 : null),
+      page: result.page ?? page,
+      hasPrevPage: result.hasPrevPage ?? (result.page ? result.page > 1 : page > 1),
+      hasNextPage: result.hasNextPage ?? (result.totalPages ? (result.page ?? page) < result.totalPages : false),
+      prevLink: null,
+      nextLink: null
+    };
 
-    res.json(result);
+    // asignar prev/next links solo si corresponde
+    if (response.hasPrevPage) response.prevLink = makeLink(response.prevPage || (response.page - 1));
+    if (response.hasNextPage) response.nextLink = makeLink(response.nextPage || (response.page + 1));
+
+    res.json(response);
   } catch (err) {
     console.error('GET /api/products error:', err);
     res.status(500).json({ status: 'error', message: err.message });

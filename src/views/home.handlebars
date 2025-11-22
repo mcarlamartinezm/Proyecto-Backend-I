@@ -3,8 +3,8 @@
 <ul class="products-grid">
   {{#if products.length}}
     {{#each products}}
-      <li class="card" data-id="{{this.id}}">
-        <div class="card-id">ID: {{this.id}}</div>
+      <li class="card" data-id="{{this._id}}">
+        <div class="card-id">ID: {{this._id}}</div>
         <div class="card-media">
           {{#if this.thumbnail}}
             <img src="{{this.thumbnail}}" alt="{{this.title}}">

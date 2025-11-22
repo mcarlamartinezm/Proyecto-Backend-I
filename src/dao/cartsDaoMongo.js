@@ -16,6 +16,10 @@ class CartsDaoMongo {
   }
 
   async addProduct(cid, pid, quantity = 1) {
+    // validar que el producto exista
+    const prodExists = await ProductsModel.findById(pid).lean();
+    if (!prodExists) throw new Error('Producto no encontrado');
+
     const cart = await CartsModel.findById(cid);
     if (!cart) throw new Error('Carrito no encontrado');
 
@@ -52,6 +56,38 @@ class CartsDaoMongo {
     const cart = await CartsModel.findById(cid);
     if (!cart) throw new Error('Carrito no encontrado');
     cart.products = [];
+    await cart.save();
+    return cart.toObject();
+  }
+
+  // Reemplaza todos los productos del carrito con el arreglo pasado:
+  // productsArray = [{ product: pid, quantity: n }, ...]
+  async replaceAllProducts(cid, productsArray) {
+    const cart = await CartsModel.findById(cid);
+    if (!cart) throw new Error('Carrito no encontrado');
+
+    if (!Array.isArray(productsArray)) {
+      throw new Error('productsArray debe ser un arreglo');
+    }
+
+    // validar y transformar cada item
+    const newProducts = [];
+    for (const item of productsArray) {
+      if (!item || !item.product) throw new Error('Cada item debe tener { product, quantity }');
+      const qty = item.quantity === undefined ? 1 : Number(item.quantity);
+      if (!Number.isInteger(qty) || qty <= 0) throw new Error('quantity debe ser entero > 0 en cada item');
+
+      // validar que el producto exista
+      const prod = await ProductsModel.findById(item.product).lean();
+      if (!prod) throw new Error(`Producto no encontrado: ${item.product}`);
+
+      newProducts.push({
+        product: mongoose.Types.ObjectId(item.product),
+        quantity: qty
+      });
+    }
+
+    cart.products = newProducts;
     await cart.save();
     return cart.toObject();
   }

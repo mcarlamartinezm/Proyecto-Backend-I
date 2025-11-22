@@ -5,7 +5,6 @@ import productsDao from '../dao/productsDaoMongo.js';
 //============== Variables
 const router = express.Router();
 
-
 //============== POST Crear un nuevo carrito
 router.post('/', async (req, res) => {
   try {
@@ -61,6 +60,27 @@ router.post('/:cid/product/:pid', async (req, res) => {
   }
 });
 
+// alternativa con plural en la ruta (mantener compatibilidad)
+router.post('/:cid/products/:pid', async (req, res) => {
+  try {
+    const { cid, pid } = req.params;
+    let { quantity } = req.body ?? {};
+    if (quantity === undefined) quantity = 1;
+    quantity = Number(quantity);
+    if (!Number.isInteger(quantity) || quantity <= 0) return res.status(400).json({ status: 'error', message: 'quantity debe ser entero > 0' });
+
+    // validar producto existe en BD
+    const product = await productsDao.getById(pid);
+    if (!product) return res.status(404).json({ status: 'error', message: 'Producto no existe' });
+
+    const updated = await cartsDao.addProduct(cid, pid, quantity);
+    res.json({ status: 'success', payload: updated });
+  } catch (err) {
+    console.error('POST /api/carts/:cid/products/:pid error:', err);
+    res.status(400).json({ status: 'error', message: err.message });
+  }
+});
+
 //===========PUT actualiza cantidad del producto en el carrito
 router.put('/:cid/products/:pid', async (req, res) => {
   try {
@@ -90,6 +110,37 @@ router.delete('/:cid/products/:pid', async (req, res) => {
   }
 });
 
+//===============PUT Reemplazar todos los productos del carrito
+router.put('/:cid', async (req, res) => {
+  try {
+    const { cid } = req.params;
+    const productsArray = req.body;
+
+    // validar que venga un arreglo
+    if (!Array.isArray(productsArray)) {
+      return res.status(400).json({ status: 'error', message: 'Body debe ser un arreglo de productos: [{ product: pid, quantity: n }, ...]' });
+    }
+
+    // validar formato de cada item
+    for (const item of productsArray) {
+      if (!item || !item.product) {
+        return res.status(400).json({ status: 'error', message: 'Cada item debe tener la forma { product: pid, quantity: n }' });
+      }
+      const qty = item.quantity === undefined ? 1 : Number(item.quantity);
+      if (!Number.isInteger(qty) || qty <= 0) {
+        return res.status(400).json({ status: 'error', message: 'quantity debe ser entero > 0 en cada item' });
+      }
+      // opcional: podríamos validar que el producto exista en BD, pero lo delegamos al DAO
+    }
+
+    const updated = await cartsDao.replaceAllProducts(cid, productsArray);
+    res.json({ status: 'success', payload: updated });
+  } catch (err) {
+    console.error('PUT /api/carts/:cid error:', err);
+    res.status(400).json({ status: 'error', message: err.message });
+  }
+});
+
 //===============DELETE Vaciar Carrito
 router.delete('/:cid', async (req, res) => {
   try {
@@ -101,7 +152,5 @@ router.delete('/:cid', async (req, res) => {
     res.status(400).json({ status: 'error', message: err.message });
   }
 });
-
-
 
 export default router;

@@ -6,22 +6,70 @@ class ProductsDaoMongo {
     const limit = parseInt(options.limit) || 10;
     const page = parseInt(options.page) || 1;
     const sortParam = options.sort || null; // 'asc' | 'desc' | null
+
+    // aceptar tanto options.filter (objeto) como options.query (string)
+    const filterFromOptions = options.filter || null;
     const queryRaw = options.query || null;
 
+    // construir filtro final
     const filter = {};
-    if (queryRaw) {
-      const [key, ...rest] = queryRaw.split(':');
-      const value = rest.join(':');
-      if (key === 'category') filter.category = value;
-      else if (key === 'status') filter.status = (value === 'true' || value === '1');
-      else if (key === 'stock') {
-        if (value === 'available' || value === 'true') filter.stock = { $gt: 0 };
-        else filter.stock = { $eq: Number(value) };
-      } else {
-        filter.$or = [
-          { category: queryRaw },
-          { title: { $regex: queryRaw, $options: 'i' } }
-        ];
+
+    // si viene filter como objeto lo usamos con prioridad
+    if (filterFromOptions && typeof filterFromOptions === 'object') {
+      // copiar keys relevantes: category, status, stock, o cualquier otro
+      if (filterFromOptions.category) filter.category = filterFromOptions.category;
+      if (filterFromOptions.status !== undefined) {
+        const s = String(filterFromOptions.status).toLowerCase();
+        filter.status = (s === 'true' || s === '1' || s === 'available' || s === 'yes');
+      }
+      if (filterFromOptions.stock !== undefined) {
+        // permitir pasar 'available' o número
+        const st = filterFromOptions.stock;
+        if (typeof st === 'string') {
+          if (st.toLowerCase() === 'available') filter.stock = { $gt: 0 };
+          else {
+            const n = Number(st);
+            if (!Number.isNaN(n)) filter.stock = { $eq: n };
+          }
+        } else if (typeof st === 'number') {
+          filter.stock = { $eq: st };
+        }
+      }
+      // permitir pasar otros filtros tal cual
+      Object.keys(filterFromOptions).forEach(k => {
+        if (!['category', 'status', 'stock'].includes(k)) {
+          filter[k] = filterFromOptions[k];
+        }
+      });
+    } else if (queryRaw) {
+      // si viene query como string, parsear "key:value" o fallback
+      if (typeof queryRaw === 'string') {
+        if (queryRaw.includes(':')) {
+          const [key, ...rest] = queryRaw.split(':');
+          const value = rest.join(':');
+          const k = key.trim();
+          const v = value.trim();
+          if (k === 'category') filter.category = v;
+          else if (k === 'status') {
+            const s = v.toLowerCase();
+            filter.status = (s === 'true' || s === '1' || s === 'available' || s === 'yes');
+          } else if (k === 'stock') {
+            if (v === 'available' || v.toLowerCase() === 'true') filter.stock = { $gt: 0 };
+            else {
+              const n = Number(v);
+              if (!Number.isNaN(n)) filter.stock = { $eq: n };
+            }
+          } else {
+            // key no explícito -> usar como campo directo si existe
+            filter[k] = v;
+          }
+        } else {
+          // fallback: intentar category o buscar por título (case-insensitive)
+          filter.$or = [
+            { category: queryRaw },
+            { title: { $regex: queryRaw, $options: 'i' } }
+          ];
+        }
       }
     }
 

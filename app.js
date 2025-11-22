@@ -26,10 +26,11 @@ const _dirname = path.dirname(_filename);
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
 
-//============ Middleware para parsear JSON
+//============ Middleware 
 
 app.use(express.json());
 app.use("/public", express.static(path.join(_dirname, "src", "public")));
+app.use(express.urlencoded({ extended: true }));
 
 
 //============ Ruteo principal
