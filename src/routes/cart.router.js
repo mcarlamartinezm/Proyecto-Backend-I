@@ -1,6 +1,6 @@
 import express from 'express';
-import cartsDaoMongo from '../dao/cartsDaoMongo.js';
-import productsDaoMongo from '../dao/productsDaoMongo.js';
+import cartsDao from '../dao/cartsDaoMongo.js';
+import productsDao from '../dao/productsDaoMongo.js';
 
 //============== Variables
 const router = express.Router();

@@ -1,15 +1,13 @@
-import Product from '../models/Products.js';
-
+import ProductsModel from '../models/Products.js';
 
 class ProductsDaoMongo {
-  // algunos opcionales
-  async getAll(options = {}, baseUrl = '') {
+  // options: { limit, page, sort, query }
+  async getAll(options = {}) {
     const limit = parseInt(options.limit) || 10;
     const page = parseInt(options.page) || 1;
-    const sortParam = options.sort || null; 
+    const sortParam = options.sort || null; // 'asc' | 'desc' | null
     const queryRaw = options.query || null;
 
-    // filtro
     const filter = {};
     if (queryRaw) {
       const [key, ...rest] = queryRaw.split(':');
@@ -20,7 +18,6 @@ class ProductsDaoMongo {
         if (value === 'available' || value === 'true') filter.stock = { $gt: 0 };
         else filter.stock = { $eq: Number(value) };
       } else {
-        // fallback
         filter.$or = [
           { category: queryRaw },
           { title: { $regex: queryRaw, $options: 'i' } }
@@ -28,7 +25,6 @@ class ProductsDaoMongo {
       }
     }
 
-    // sort
     let sortObj = {};
     if (sortParam === 'asc') sortObj = { price: 1 };
     else if (sortParam === 'desc') sortObj = { price: -1 };
@@ -36,8 +32,8 @@ class ProductsDaoMongo {
     const skip = (page - 1) * limit;
 
     const [docs, totalDocs] = await Promise.all([
-      Products.find(filter).sort(sortObj).skip(skip).limit(limit).lean(),
-      Products.countDocuments(filter)
+      ProductsModel.find(filter).sort(sortObj).skip(skip).limit(limit).lean(),
+      ProductsModel.countDocuments(filter)
     ]);
 
     const totalPages = Math.max(Math.ceil(totalDocs / limit), 1);
@@ -46,7 +42,6 @@ class ProductsDaoMongo {
     const prevPage = hasPrevPage ? page - 1 : null;
     const nextPage = hasNextPage ? page + 1 : null;
 
-  
     return {
       status: 'success',
       payload: docs,
@@ -63,20 +58,20 @@ class ProductsDaoMongo {
   }
 
   async getById(id) {
-    return Products.findById(id).lean();
+    return ProductsModel.findById(id).lean();
   }
 
   async create(productData) {
-    const p = await Products.create(productData);
+    const p = await ProductsModel.create(productData);
     return p.toObject();
   }
 
   async update(id, updateData) {
-    return Products.findByIdAndUpdate(id, updateData, { new: true }).lean();
+    return ProductsModel.findByIdAndUpdate(id, updateData, { new: true }).lean();
   }
 
   async delete(id) {
-    return Products.findByIdAndDelete(id).lean();
+    return ProductsModel.findByIdAndDelete(id).lean();
   }
 }
 
