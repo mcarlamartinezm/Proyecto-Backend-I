@@ -18,7 +18,6 @@ import 'dotenv/config';
 
 const app = express();
 const PORT = process.env.PORT ?? 8080;
-
 //variables de handlebars
 const _filename = fileURLToPath(import.meta.url);
 const _dirname = path.dirname(_filename);
@@ -27,7 +26,6 @@ const httpServer = http.createServer(app);
 const io = new Server(httpServer);
 
 //============ Middleware 
-
 app.use(express.json());
 app.use("/public", express.static(path.join(_dirname, "src", "public")));
 app.use(express.urlencoded({ extended: true }));
@@ -36,29 +34,28 @@ app.use(express.urlencoded({ extended: true }));
 //============ Ruteo principal
 app.use('/api/products', productRouter);
 app.use('/api/carts', cartRouter);
-//Ruteo views
+//Ruteo de views
 app.use("/", viewsRouter);
-
-
-//============ Ruta para errores 404
+//Ruta para errores 404
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada' });
 });
 
 
-//============handlebars
+//============ Handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", path.join(_dirname, "src","views"));
-//socket.io
+
+
+//============== Socket.io
 app.set("io", io);
 
-
-
-//============ Levanta servidor
+//=============== Levanta servidor
 connectMongoDB();
 
-//para ver la web mientras edito
+
+//==============localhost
 httpServer.listen(PORT, () => { 
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });

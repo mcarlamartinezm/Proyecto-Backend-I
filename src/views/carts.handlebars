@@ -3,9 +3,20 @@
 <div class="carts-wrap">
   <form id="cart-form">
     <label for="cartId">ID de carrito</label>
-    <input id="cartId" name="cartId" type="number" min="1" required />
+    <input id="cartId" name="cartId" type="text" required />
     <button class="btn" type="submit">Ver carrito</button>
+    <button id="btn-clear" class="btn danger" type="button" style="margin-left:8px;">Vaciar carrito</button>
+    <button id="btn-delete" class="btn danger" type="button" style="margin-left:8px;">Eliminar carrito</button>
   </form>
+
+  <h3>Crear carrito (agregar filas)</h3>
+  <table id="create-table" style="width:100%; margin-bottom:8px;">
+    <thead><tr><th>Product _id</th><th>Quantity</th><th></th></tr></thead>
+    <tbody id="create-body"></tbody>
+  </table>
+  <button id="add-row" class="btn">Agregar fila</button>
+  <button id="btn-create" class="btn" style="margin-left:8px;">Crear carrito desde filas</button>
+  <button id="btn-create-empty" class="btn" style="margin-left:8px;">Crear carrito vacío</button>
 
   <h2>Productos del carrito</h2>
   <ul id="cart-list">
@@ -13,4 +24,141 @@
   </ul>
 </div>
 
-<script src="/public/js/carts.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const form = document.getElementById("cart-form");
+  const list = document.getElementById("cart-list");
+  const btnClear = document.getElementById("btn-clear");
+  const btnDelete = document.getElementById("btn-delete");
+  const addRow = document.getElementById("add-row");
+  const createBody = document.getElementById("create-body");
+  const btnCreate = document.getElementById("btn-create");
+  const btnCreateEmpty = document.getElementById("btn-create-empty");
+
+  function newRow(product='', qty=1) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input class="prod-id" style="width:100%" value="${product}" /></td>
+      <td><input class="prod-qty" type="number" min="1" value="${qty}" style="width:80px" /></td>
+      <td><button class="remove-row btn danger" type="button">X</button></td>
+    `;
+    createBody.appendChild(tr);
+    tr.querySelector('.remove-row').addEventListener('click', () => tr.remove());
+  }
+
+  newRow();
+
+  addRow.addEventListener('click', (e) => { e.preventDefault(); newRow(); });
+
+  function renderCart(cart) {
+    list.innerHTML = "";
+    if (!cart || !cart.products || !cart.products.length) {
+      list.innerHTML = '<li id="empty" class="muted">El carrito está vacío</li>';
+      return;
+    }
+    cart.products.forEach(item => {
+      const pid = (item.product && item.product._id) ? item.product._id : item.product;
+      const title = (item.product && item.product.title) ? item.product.title : 'Producto';
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <div><strong>${title}</strong></div>
+        <div>PID: ${pid} — Cantidad: ${item.quantity}</div>
+        <div style="margin-top:6px;">
+          <button class="btn remove-item" data-pid="${pid}" data-cid="${cart._id}">Eliminar item</button>
+        </div>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  socket.on('cartUpdated', ({ cid, cart }) => {
+    const currentId = document.getElementById("cartId").value.trim();
+    if (currentId && currentId === cid) renderCart(cart);
+  });
+  socket.on('cartDeleted', ({ cid }) => {
+    const currentId = document.getElementById("cartId").value.trim();
+    if (currentId && currentId === cid) {
+      list.innerHTML = '<li id="empty" class="muted">Carrito eliminado</li>';
+      document.getElementById("cartId").value = '';
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("cartId").value.trim();
+    if (!id) return;
+    try {
+      const resp = await fetch(`/api/carts/${id}`);
+      if (!resp.ok) { list.innerHTML = `<li>Carrito no encontrado</li>`; return; }
+      const data = await resp.json();
+      const cart = data.payload ?? null;
+      renderCart(cart);
+    } catch (err) { list.innerHTML = `<li>Error al cargar el carrito</li>`; }
+  });
+
+  // Crear carrito desde filas
+  btnCreate.addEventListener('click', async () => {
+    const rows = Array.from(document.querySelectorAll('#create-body tr'));
+    const products = rows.map(r => {
+      const pid = r.querySelector('.prod-id').value.trim();
+      const qty = Number(r.querySelector('.prod-qty').value);
+      return { product: pid, quantity: qty };
+    }).filter(x => x.product);
+    try {
+      const resp = await fetch('/api/carts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products })
+      });
+      const data = await resp.json();
+      if (!resp.ok) return alert('Error: ' + (data.message || ''));
+      alert('Carrito creado: ' + (data.payload._id ?? JSON.stringify(data.payload)));
+    } catch (err) { alert('Error de red'); }
+  });
+
+  // Crear carrito vacío
+  btnCreateEmpty.addEventListener('click', async () => {
+    try {
+      const resp = await fetch('/api/carts', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{}' });
+      const data = await resp.json();
+      if (!resp.ok) return alert('Error creando carrito');
+      alert('Carrito creado vacío: ' + data.payload._id);
+    } catch (err) { alert('Error de red'); }
+  });
+
+  // vaciar carrito
+  btnClear.addEventListener('click', async () => {
+    const id = document.getElementById("cartId").value.trim();
+    if (!id) return alert('Ingresa un ID primero');
+    try {
+      const resp = await fetch(`/api/carts/${id}`, { method: 'DELETE' });
+      if (!resp.ok) return alert('Error al vaciar carrito');
+    } catch (err) { alert('Error de red'); }
+  });
+
+  // eliminar carrito 
+  btnDelete.addEventListener('click', async () => {
+    const id = document.getElementById("cartId").value.trim();
+    if (!id) return alert('Ingresa un ID primero');
+    if (!confirm('¿Eliminar carrito permanentemente?')) return;
+    try {
+      const resp = await fetch(`/api/carts/${id}/delete`, { method: 'DELETE' });
+      if (!resp.ok) return alert('Error al eliminar carrito');
+      list.innerHTML = '<li id="empty" class="muted">Carrito eliminado</li>';
+      document.getElementById("cartId").value = '';
+    } catch (err) { alert('Error de red'); }
+  });
+
+  // eliminar item 
+  list.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.remove-item');
+    if (!btn) return;
+    const pid = btn.dataset.pid;
+    const cid = btn.dataset.cid;
+    try {
+      const resp = await fetch(`/api/carts/${cid}/products/${pid}`, { method: 'DELETE' });
+      if (!resp.ok) return alert('Error al eliminar item');
+    } catch (err) { alert('Error de red'); }
+  });
+</script>

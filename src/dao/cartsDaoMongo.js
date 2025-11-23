@@ -3,18 +3,25 @@ import ProductsModel from '../models/Products.js';
 import mongoose from 'mongoose';
 
 class CartsDaoMongo {
-  async create() {
-    const cart = await CartsModel.create({});
-    return cart.toObject();
-  }
-
-  async getById(cid, populate = false) {
-    if (populate) {
-      return CartsModel.findById(cid).populate('products.product').lean();
+    // acepta productsArray 
+  async create(productsArray = []) {
+    const products = [];
+    for (const it of productsArray) {
+      const pid = String(it.product).trim();
+      if (!mongoose.isValidObjectId(pid)) throw new Error('product id inválido');
+      const qty = Number(it.quantity ?? 1);
+      products.push({ product: mongoose.Types.ObjectId(pid), quantity: qty });
     }
-    return CartsModel.findById(cid).lean();
+    const cart = await CartsModel.create({ products });
+    return CartsModel.findById(cart._id).populate('products.product').lean();
   }
 
+  async deleteCart(cid) {
+    const deleted = await CartsModel.findByIdAndDelete(cid).lean();
+    return deleted;
+  }
+
+//============Agregar Carrito
   async addProduct(cid, pid, quantity = 1) {
     // validar que el producto exista
     const prodExists = await ProductsModel.findById(pid).lean();
@@ -30,17 +37,22 @@ class CartsDaoMongo {
       cart.products.push({ product: mongoose.Types.ObjectId(pid), quantity });
     }
     await cart.save();
-    return cart.toObject();
+
+    // devolver carrito
+    return CartsModel.findById(cart._id).populate('products.product').lean();
   }
 
+  //===============Eliminar carrito
   async removeProduct(cid, pid) {
     const cart = await CartsModel.findById(cid);
     if (!cart) throw new Error('Carrito no encontrado');
     cart.products = cart.products.filter(p => p.product.toString() !== pid.toString());
     await cart.save();
-    return cart.toObject();
+
+    return CartsModel.findById(cart._id).populate('products.product').lean();
   }
 
+  //===============Actualizar Carrito
   async updateProductQuantity(cid, pid, quantity) {
     if (quantity < 1) throw new Error('Quantity must be >= 1');
     const cart = await CartsModel.findById(cid);
@@ -49,19 +61,21 @@ class CartsDaoMongo {
     if (!item) throw new Error('Producto no está en el carrito');
     item.quantity = quantity;
     await cart.save();
-    return cart.toObject();
+
+    return CartsModel.findById(cart._id).populate('products.product').lean();
   }
 
+//==================Vaciar carritos
   async clearCart(cid) {
     const cart = await CartsModel.findById(cid);
     if (!cart) throw new Error('Carrito no encontrado');
     cart.products = [];
     await cart.save();
-    return cart.toObject();
+
+    return CartsModel.findById(cart._id).populate('products.product').lean();
   }
 
-  // Reemplaza todos los productos del carrito con el arreglo pasado:
-  // productsArray = [{ product: pid, quantity: n }, ...]
+  //================= Reemplaza todos los productos del carrito 
   async replaceAllProducts(cid, productsArray) {
     const cart = await CartsModel.findById(cid);
     if (!cart) throw new Error('Carrito no encontrado');
@@ -89,7 +103,8 @@ class CartsDaoMongo {
 
     cart.products = newProducts;
     await cart.save();
-    return cart.toObject();
+
+    return CartsModel.findById(cart._id).populate('products.product').lean();
   }
 }
 

@@ -21,7 +21,6 @@ form.addEventListener("submit", async (e) => {
     }
 
     const data = await resp.json();
-    // soportar tanto { status, payload } como un array directo (tolerancia)
     const products = Array.isArray(data) ? data : (data.payload ?? []);
 
     // ============ Render vacío
@@ -33,7 +32,6 @@ form.addEventListener("submit", async (e) => {
     // ============ Render productos
     products.forEach((p) => {
       const li = document.createElement("li");
-      // cuando viene populate, p.product suele ser un objeto; en caso contrario, mostrar como viene
       const pid = p.product && p.product._id ? p.product._id : p.product;
       li.textContent = `PID: ${pid} — Cantidad: ${p.quantity}`;
       list.appendChild(li);

@@ -12,12 +12,9 @@ function renderList(products) {
   products.forEach((p) => {
     const li = document.createElement("li");
     li.className = "card";
-    // usar _id (ObjectId) que envía el backend
-    const pid = p._id ?? p.id ?? p.product ?? '';
-    li.setAttribute("data-id", pid);
-
+    li.setAttribute("data-id", p._id);
     li.innerHTML = `
-      <div class="card-id">ID: ${pid}</div>
+      <div class="card-id">ID: ${p._id}</div>
       <div class="card-media">
         <img src="${p.thumbnail ? p.thumbnail : "https://via.placeholder.com/400x400?text=Sin+imagen"}" alt="${p.title || "Producto"}">
       </div>
@@ -34,15 +31,13 @@ function renderList(products) {
   });
 }
 
-// unico handler para updates desde el servidor
 socket.on("productsUpdated", (products) => {
-  // si el servidor manda { payload: [...] } soportamos esa forma
   const arr = Array.isArray(products) ? products : (products.payload ?? products.docs ?? []);
   renderList(arr);
 });
 
 
-// ================= Form: Agregar producto (POST /api/products) ===============
+// ============= Agregar producto 
 const addForm = document.getElementById("add-form");
 if (addForm) {
   addForm.addEventListener("submit", async (e) => {
@@ -53,7 +48,6 @@ if (addForm) {
     const price = Number(addForm.price.value);
     const category = addForm.category.value.trim();
     const stock = Number(addForm.stock.value);
-
     const thumbnail = addForm.thumbnail.value.trim();
     const code = addForm.code.value.trim();
     const status = addForm.status.value === "true";
@@ -89,7 +83,7 @@ if (addForm) {
 }
 
 
-// ============ Form: Eliminar producto (DELETE /api/products/:id) ============
+// ============ Eliminar producto 
 const delForm = document.getElementById("del-form");
 if (delForm) {
   delForm.addEventListener("submit", async (e) => {
@@ -113,7 +107,7 @@ if (delForm) {
 }
 
 
-// ================== Form: Editar precio (PUT /api/products/:id) ==============
+// ================== Editar precio 
 const editForm = document.getElementById("edit-price-form");
 if (editForm) {
   editForm.addEventListener("submit", async (e) => {

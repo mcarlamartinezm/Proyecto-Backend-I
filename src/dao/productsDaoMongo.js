@@ -1,29 +1,24 @@
 import ProductsModel from '../models/Products.js';
 
 class ProductsDaoMongo {
-  // options: { limit, page, sort, query }
-  async getAll(options = {}) {
+    async getAll(options = {}) {
     const limit = parseInt(options.limit) || 10;
     const page = parseInt(options.page) || 1;
-    const sortParam = options.sort || null; // 'asc' | 'desc' | null
-
-    // aceptar tanto options.filter (objeto) como options.query (string)
+    const sortParam = options.sort || null; 
     const filterFromOptions = options.filter || null;
     const queryRaw = options.query || null;
 
     // construir filtro final
     const filter = {};
-
     // si viene filter como objeto lo usamos con prioridad
     if (filterFromOptions && typeof filterFromOptions === 'object') {
-      // copiar keys relevantes: category, status, stock, o cualquier otro
+      // copiar keys relevantes
       if (filterFromOptions.category) filter.category = filterFromOptions.category;
       if (filterFromOptions.status !== undefined) {
         const s = String(filterFromOptions.status).toLowerCase();
         filter.status = (s === 'true' || s === '1' || s === 'available' || s === 'yes');
       }
       if (filterFromOptions.stock !== undefined) {
-        // permitir pasar 'available' o número
         const st = filterFromOptions.stock;
         if (typeof st === 'string') {
           if (st.toLowerCase() === 'available') filter.stock = { $gt: 0 };
@@ -60,7 +55,7 @@ class ProductsDaoMongo {
               if (!Number.isNaN(n)) filter.stock = { $eq: n };
             }
           } else {
-            // key no explícito -> usar como campo directo si existe
+            // key no explícito para usar como campo directo si existe
             filter[k] = v;
           }
         } else {

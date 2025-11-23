@@ -1,23 +1,30 @@
 import { Router } from "express";
-import ProductManager from "../manager/productManager.js";
-import CartManager from "../manager/cartManager.js";
+import productsDao from "../dao/productsDaoMongo.js";
 
-//============== instancias
 const router = Router();
-const pm = new ProductManager("./data/products.json");
-const cm = new CartManager ("./data/carts.json")
 
-//=================Home: lista de productos
-router.get("/", async (req, res)=>{
-    const products = await pm.getProducts();
+//=================Home: lista de productos 
+router.get("/", async (req, res) => {
+  try {
+    const result = await productsDao.getAll({ limit: 100, page: 1 });
+    const products = Array.isArray(result) ? result : (result.payload ?? result.docs ?? []);
     res.render("home", { products });
+  } catch (err) {
+    console.error("Error al renderizar home:", err);
+    res.status(500).send("Error interno");
+  }
 });
 
-
-//================vista RealTime
-router.get("/realtimeproducts", async (req, res)=>{
-    const products = await pm.getProducts();
+//================vista RealTime 
+router.get("/realtimeproducts", async (req, res) => {
+  try {
+    const result = await productsDao.getAll({ limit: 100, page: 1 });
+    const products = Array.isArray(result) ? result : (result.payload ?? result.docs ?? []);
     res.render("realTimeProducts", { products });
+  } catch (err) {
+    console.error("Error al renderizar realtimeproducts:", err);
+    res.status(500).send("Error interno");
+  }
 });
 
 //=================vista a carts
