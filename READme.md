@@ -20,12 +20,14 @@ Vistas dinámicas
 Tiempo real con WebSockets
 Actualización automática de productos al agregar, editar o eliminar
 Comunicación cliente-servidor mediante Socket.IO
+
 🛠️ Tecnologías utilizadas
 Node.js
 Express
 MongoDB + Mongoose
 Handlebars
 Socket.IO
+
 
 📌 Notas
 Los productos y carritos utilizan _id generados por MongoDB.
