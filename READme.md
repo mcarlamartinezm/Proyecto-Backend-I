@@ -26,6 +26,7 @@ Express
 MongoDB + Mongoose
 Handlebars
 Socket.IO
+
 📌 Notas
 Los productos y carritos utilizan _id generados por MongoDB.
 La vista en tiempo real refleja los cambios sin necesidad de recargar la página.
